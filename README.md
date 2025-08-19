@@ -1,15 +1,140 @@
-# What is this?
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spike – PDF Editor</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
 
-The github.dev web-based editor is a lightweight editing experience that runs entirely in your browser. You can navigate files and source code repositories from GitHub, and make and commit code changes.
+    header {
+      background-color: #222;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-There are two ways to go directly to a VS Code environment in your browser and start coding:
+    header h1 {
+      margin: 0;
+      font-size: 1.5em;
+    }
 
-* Press the . key on any repository or pull request.
-* Swap `.com` with `.dev` in the URL. For example, this repo https://github.com/github/dev becomes http://github.dev/github/dev
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
 
-Preview the gif below to get a quick demo of github.dev in action.
+    #editor {
+      width: 50%;
+      padding: 10px;
+      background: #f4f4f4;
+      border-right: 2px solid #ccc;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
 
-![github dev](https://user-images.githubusercontent.com/856858/130119109-4769f2d7-9027-4bc4-a38c-10f297499e8f.gif)
+    #editor textarea {
+      flex: 1;
+      width: 100%;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      border: none;
+      resize: none;
+      outline: none;
+      background-color: #e8e8e8;
+    }
 
-# Why?
-It’s a quick way to edit and navigate code. It's especially useful if you want to edit multiple files at a time or take advantage of all the powerful code editing features of Visual Studio Code when making a quick change. For more information, see our [documentation](https://github.co/codespaces-editor-help).
+    #pdfViewer {
+      width: 50%;
+      height: 100%;
+      border: none;
+    }
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      border: none;
+      background-color: #005eff;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #0040c1;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Spike – PDF Editor</h1>
+    <label>
+      <button onclick="document.getElementById('pdfUpload').click()">Upload PDF</button>
+      <input type="file" id="pdfUpload" accept="application/pdf" />
+    </label>
+  </header>
+
+  <div class="container">
+    <div id="editor">
+      <textarea id="codeEditor" placeholder="Type your HTML/PDF editing code here..."></textarea>
+      <div class="controls">
+        <button onclick="runCode()">Run</button>
+        <button onclick="downloadCode()">Download HTML</button>
+      </div>
+    </div>
+
+    <iframe id="pdfViewer" src="" title="PDF Viewer"></iframe>
+  </div>
+
+  <script>
+    const pdfUpload = document.getElementById('pdfUpload');
+    const pdfViewer = document.getElementById('pdfViewer');
+    const codeEditor = document.getElementById('codeEditor');
+
+    pdfUpload.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file && file.type === 'application/pdf') {
+        const fileURL = URL.createObjectURL(file);
+        pdfViewer.src = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileURL)}`;
+      } else {
+        alert('Please select a valid PDF file.');
+      }
+    });
+
+    function runCode() {
+      const code = codeEditor.value;
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(code);
+      newWindow.document.close();
+    }
+
+    function downloadCode() {
+      const blob = new Blob([codeEditor.value], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.download = 'spike_code.html';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }
+  </script>
+</body>
+</html>
